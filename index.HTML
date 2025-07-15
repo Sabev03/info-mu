@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Университети - Медицински специалности</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="shortcut icon" href="favicon.ico">
+</head>
+
+<body>
+
+  <header>
+    <img src="sabev-orange.png" alt="Лого">
+    <h1>Прием в медицински университети - минимални балове</h1>
+  </header>
+
+  <div class="alert-box">
+    Скъпи бъдещи колеги, този сайт показва минималния бал през последните години за кандидатстване в специалностите Медицина, Дентална медицина и Фармация. <br><span style="color:red;text-align:center"><b>ВАЖНО!</b></span></span> <br>
+    Не всички университети приемат студенти и в трите професионални направления. <br>В СУ "Св. Климент Охридски" през 2024 година е с различно балообразуване и затова баловете не съвпадат!
+      
+  </div>
+
+  <div class="content">
+    <div class="filters">
+      <select id="universitySelect">
+        <option value="">-- Изберете университет --</option>
+        <option value="Софийски университет">Софийски университет</option>
+        <option value="Медицински университет-София">МУ-София</option>
+        <option value="Медицински университет-Варна">МУ-Варна</option>
+        <option value="Медицински университет-Пловдив">МУ-Пловдив</option>
+        <option value="Медицински университет-Плевен">МУ-Плевен</option>
+        <option value="Тракийски университет-Стара Загора">ТрУ-Стара Загора</option>
+        <option value="Бугарски държавен университет Проф д-р. Асен Златанов">БДУ</option>
+      </select>
+
+      <select id="specialtySelect">
+        <option value="">-- Всички специалности --</option>
+        <option value="Медицина">Медицина</option>
+        <option value="Дентална медицина">Дентална медицина</option>
+        <option value="Фармация">Фармация</option>
+      </select>
+
+      <button onclick="addUniversity()">Добави университет</button>
+      <button class="reset-filter" onclick="resetFilters()">Изчисти филтрите</button>
+      <button class="clear-all" onclick="clearAll()">Изчисти всички</button>
+    </div>
+
+    <div class="universities-wrapper" id="universitiesContainer"></div>
+  </div>
+
+  <footer>
+    <div class="footer"><div class="copyright">Изградено от: <a href="https://www.linkedin.com/in/ivo-sabev-6b809a229/">Иво Събев</a></div>
+<div class="kontakt"><a href="mailto:ivo.sabev@icloud.com">Контакт с мен</a></div>
+</div>
+<style>
+    .copyright {
+    width: 50%;
+    float: left;
+}
+    .kontakt{
+    float: right;
+    display: flex
+;
+}
+</style>
+  </footer>
+
+
+<script src="data.js"></script>
+  <script src="script.js"></script>
+  
+</body>
+
+</html>
