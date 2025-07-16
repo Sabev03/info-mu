@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const info = universityData.info;
     const specialties = specialtyFilter ? [specialtyFilter] : Object.keys(universityData.specialties);
 
-    // Събиране на години, които имат реални данни (числа)
+    // Събиране на години, които имат масиви с елементи, дори и празни
     const yearsSet = new Set();
     specialties.forEach(spec => {
       if (universityData.specialties[spec]) {
@@ -35,9 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const yearData = universityData.specialties[spec][year];
           const male = yearData["мъже"] || [];
           const female = yearData["жени"] || [];
-          // Проверка за поне един валиден резултат (число)
-          const hasValidData = male.some(x => !isNaN(parseFloat(x))) || female.some(x => !isNaN(parseFloat(x)));
-          if (hasValidData) {
+          // Добавяме годината, ако има поне един елемент в масива (дори и празен)
+          if (male.length > 0 || female.length > 0) {
             yearsSet.add(year);
           }
         });
@@ -83,14 +82,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const male = yearData["мъже"] || [];
         const female = yearData["жени"] || [];
 
-        // Пропускаме редове без валидни данни
-        const hasValidData = male.some(x => !isNaN(parseFloat(x))) || female.some(x => !isNaN(parseFloat(x)));
-        if (!hasValidData) return;
+        // Показваме ред, ако има поне един елемент в някой от масивите (включително празен)
+        if (male.length === 0 && female.length === 0) return;
 
         html += `<tr><td>${spec}</td><td>${year}</td>`;
         for (let i = 0; i < maxRounds; i++) {
-          const hasMale = male[i] !== undefined && !isNaN(parseFloat(male[i]));
-          const hasFemale = female[i] !== undefined && !isNaN(parseFloat(female[i]));
+          const hasMale = male[i] !== undefined && male[i] !== "";
+          const hasFemale = female[i] !== undefined && female[i] !== "";
 
           let m = hasMale ? Number(male[i]).toFixed(2).replace('.', ',') + ' <span style="color:darkblue"><b>(м)</b></span>' : '-';
           let f = hasFemale ? Number(female[i]).toFixed(2).replace('.', ',') + ' <span style="color:red"><b>(ж)</b></span>' : '-';
@@ -107,11 +105,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     html += "</table>";
 
-    // Добавяме alert box, ако университетът е Софийски
+    // alert box за Софийски университет
     let alertHtml = "";
     if (university === "Софийски университет") {
       alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
-        През 2023 и 2024 балообразуването е различно с максимален БАЛ 36
+        През 2023 и 2024 балообразуването различно с максимален БАЛ 36
       </div>`;
     }
 
