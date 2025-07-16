@@ -112,7 +112,7 @@ html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spe
     let alertHtml = "";
     if (university === "Софийски университет") {
       alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
-        През 2023 и 2024 балообразуването различно с максимален БАЛ 36
+        През 2023 и 2024 балообразуването e различно с максимален БАЛ 36
       </div>`;
     }
 
