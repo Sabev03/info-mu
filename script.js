@@ -43,7 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    const years = Array.from(yearsSet).sort();
+    const years = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
+  
 
     if (years.length === 0) {
       block.innerHTML = `<h2>${university}</h2>
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <p><i>Тази специалност <b>${specialtyFilter}</b> не се изучава в ${university}</i></p>`;
       return;
     }
+    
 
     let maxRounds = 0;
     specialties.forEach(spec => {
@@ -85,7 +87,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Показваме ред, ако има поне един елемент в някой от масивите (включително празен)
         if (male.length === 0 && female.length === 0) return;
 
-        html += `<tr><td>${spec}</td><td>${year}</td>`;
+        const isLastYear = year === years[0];
+html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spec}</td><td>${isLastYear ? '<b>' + year + '</b>' : year}</td>`;
         for (let i = 0; i < maxRounds; i++) {
           const hasMale = male[i] !== undefined && male[i] !== "";
           const hasFemale = female[i] !== undefined && female[i] !== "";
@@ -130,4 +133,5 @@ document.addEventListener("DOMContentLoaded", function () {
   window.resetFilters = function () {
     specialtySelect.value = "";
   };
+  
 });
