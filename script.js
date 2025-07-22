@@ -115,12 +115,6 @@ html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spe
         През 2023 и 2024 балообразуването e различно с максимален БАЛ 36
       </div>`;
     }
-    let alertHtml = "";
-    if (university === "Медицински университет-Варна") {
-      alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
-        За специалност "Военен лекар" балообразуването е различно!
-      </div>`;
-    }
     
 
     block.innerHTML = `<h2>${university}</h2>
