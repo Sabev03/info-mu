@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
           let m = hasMale ? Number(male[i]).toFixed(2).replace('.', ',') + ' <span style="color:darkblue"><b>(м)</b></span>' : '-';
           let f = hasFemale ? Number(female[i]).toFixed(2).replace('.', ',') + ' <span style="color:red"><b>(ж)</b></span>' : '-';
 
-          let cellContent = '-';
+          let cellContent = '';
           if (hasMale || hasFemale) {
             cellContent = `${hasFemale ? f : '- <span style="color:red"><b>(ж)</b></span>'} / ${hasMale ? m : '- <span style="color:darkblue"><b>(м)</b></span>'}`;
           }
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Добавяне на колони за платено
         for (let i = 0; i < maxPaidRounds; i++) {
-          let paidCell = "-";
+          let paidCell = "";
           const paid = yearData["платено"];
           if (paid) {
             if (university === "Софийски университет") {
