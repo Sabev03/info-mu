@@ -53,7 +53,27 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     
+let maxPaidRounds = 0;
+let hasPaid = false;
 
+specialties.forEach(spec => {
+  years.forEach(year => {
+    const yearData = universityData.specialties[spec]?.[year];
+    if (!yearData) return;
+
+    if ("платено" in yearData) {
+      hasPaid = true;
+      if (university === "Софийски университет") {
+        const f = yearData["платено"]["жени"] || [];
+        const m = yearData["платено"]["мъже"] || [];
+        maxPaidRounds = Math.max(maxPaidRounds, f.length, m.length);
+      } else {
+        const p = yearData["платено"] || [];
+        maxPaidRounds = Math.max(maxPaidRounds, p.length);
+      }
+    }
+  });
+});
     let maxRounds = 0;
     specialties.forEach(spec => {
       years.forEach(year => {
@@ -76,7 +96,11 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 1; i <= maxRounds; i++) {
       html += `<th>Класиране ${i}</th>`;
     }
-		html += `<th>Платено</th>`;
+    if (hasPaid) {
+  for (let i = 1; i <= maxPaidRounds; i++) {
+    html += `<th>Платено ${i}</th>`;
+  }
+}
     html += "</tr>";
 
     specialties.forEach(spec => {
