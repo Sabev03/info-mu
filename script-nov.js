@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const info = universityData.info;
     const specialties = specialtyFilter ? [specialtyFilter] : Object.keys(universityData.specialties);
 
-    // Събиране на години, които имат масиви с елементи, дори и празни
     const yearsSet = new Set();
     specialties.forEach(spec => {
       if (universityData.specialties[spec]) {
@@ -35,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const yearData = universityData.specialties[spec][year];
           const male = yearData["мъже"] || [];
           const female = yearData["жени"] || [];
-          // Добавяме годината, ако има поне един елемент в масива (дори и празен)
           if (male.length > 0 || female.length > 0) {
             yearsSet.add(year);
           }
@@ -44,43 +42,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const years = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
-  
-
     if (years.length === 0) {
       block.innerHTML = `<h2>${university}</h2>
         <button class="remove-btn" onclick="removeUniversity('${university}')">✖</button>
         <p><i>Тази специалност <b>${specialtyFilter}</b> не се изучава в ${university}</i></p>`;
       return;
     }
-    
-let maxPaidRounds = 0;
-let hasPaid = false;
 
-specialties.forEach(spec => {
-  years.forEach(year => {
-    const yearData = universityData.specialties[spec]?.[year];
-    if (!yearData) return;
-
-    if ("платено" in yearData) {
-      hasPaid = true;
-      if (university === "Софийски университет") {
-        const f = yearData["платено"]["жени"] || [];
-        const m = yearData["платено"]["мъже"] || [];
-        maxPaidRounds = Math.max(maxPaidRounds, f.length, m.length);
-      } else {
-        const p = yearData["платено"] || [];
-        maxPaidRounds = Math.max(maxPaidRounds, p.length);
-      }
-    }
-  });
-});
+    // Откриване на максимален брой класирания
     let maxRounds = 0;
+    let maxPaidRounds = 0;
+
     specialties.forEach(spec => {
       years.forEach(year => {
         const yearData = universityData.specialties[spec]?.[year] || {};
         const male = yearData["мъже"] || [];
         const female = yearData["жени"] || [];
         maxRounds = Math.max(maxRounds, male.length, female.length);
+
+        const paid = yearData["платено"];
+        if (paid) {
+          if (university === "Софийски университет") {
+            const paidMale = paid["мъже"] || [];
+            const paidFemale = paid["жени"] || [];
+            maxPaidRounds = Math.max(maxPaidRounds, paidMale.length, paidFemale.length);
+          } else if (Array.isArray(paid)) {
+            maxPaidRounds = Math.max(maxPaidRounds, paid.length);
+          }
+        }
       });
     });
 
@@ -96,11 +85,11 @@ specialties.forEach(spec => {
     for (let i = 1; i <= maxRounds; i++) {
       html += `<th>Класиране ${i}</th>`;
     }
-    if (hasPaid) {
-  for (let i = 1; i <= maxPaidRounds; i++) {
-    html += `<th>Платено ${i}</th>`;
-  }
-}
+
+    for (let i = 1; i <= maxPaidRounds; i++) {
+      html += `<th>Платено ${i}</th>`;
+    }
+
     html += "</tr>";
 
     specialties.forEach(spec => {
@@ -109,11 +98,11 @@ specialties.forEach(spec => {
         const male = yearData["мъже"] || [];
         const female = yearData["жени"] || [];
 
-        // Показваме ред, ако има поне един елемент в някой от масивите (включително празен)
         if (male.length === 0 && female.length === 0) return;
 
         const isLastYear = year === years[0];
-html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spec}</td><td>${isLastYear ? '<b>' + year + '</b>' : year}</td>`;
+        html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spec}</td><td>${isLastYear ? '<b>' + year + '</b>' : year}</td>`;
+
         for (let i = 0; i < maxRounds; i++) {
           const hasMale = male[i] !== undefined && male[i] !== "";
           const hasFemale = female[i] !== undefined && female[i] !== "";
@@ -121,42 +110,51 @@ html += `<tr${isLastYear ? ' style="background-color: #f0f0f0;"' : ''}><td>${spe
           let m = hasMale ? Number(male[i]).toFixed(2).replace('.', ',') + ' <span style="color:darkblue"><b>(м)</b></span>' : '-';
           let f = hasFemale ? Number(female[i]).toFixed(2).replace('.', ',') + ' <span style="color:red"><b>(ж)</b></span>' : '-';
 
-          let cellContent = '';
+          let cellContent = '-';
           if (hasMale || hasFemale) {
             cellContent = `${hasFemale ? f : '- <span style="color:red"><b>(ж)</b></span>'} / ${hasMale ? m : '- <span style="color:darkblue"><b>(м)</b></span>'}`;
           }
+
           html += `<td>${cellContent}</td>`;
         }
-// Платено колона
-let paidCell = "-";
-const paidData = yearData["платено"];
 
-if (university === "Софийски университет") {
-  const fPaid = paidData?.["жени"]?.[0];
-  const mPaid = paidData?.["мъже"]?.[0];
-  const fStr = fPaid !== undefined ? Number(fPaid).toFixed(2).replace('.', ',') + ' <span style="color:red"><b>(ж)</b></span>' : '-';
-  const mStr = mPaid !== undefined ? Number(mPaid).toFixed(2).replace('.', ',') + ' <span style="color:darkblue"><b>(м)</b></span>' : '-';
-  paidCell = `${fStr} / ${mStr}`;
-} else if (Array.isArray(paidData)) {
-  const paid = paidData?.[0];
-  paidCell = paid !== undefined ? Number(paid).toFixed(2).replace('.', ',') : "-";
-}
+        // Добавяне на колони за платено
+        for (let i = 0; i < maxPaidRounds; i++) {
+          let paidCell = "-";
+          const paid = yearData["платено"];
+          if (paid) {
+            if (university === "Софийски университет") {
+              const paidMale = paid["мъже"] || [];
+              const paidFemale = paid["жени"] || [];
 
-html += `<td>${paidCell}</td>`;
+              const hasMale = paidMale[i] !== undefined && paidMale[i] !== "";
+              const hasFemale = paidFemale[i] !== undefined && paidFemale[i] !== "";
+
+              if (hasMale || hasFemale) {
+                const m = hasMale ? Number(paidMale[i]).toFixed(2).replace('.', ',') + ' <span style="color:darkblue"><b>(м)</b></span>' : '- <span style="color:darkblue"><b>(м)</b></span>';
+                const f = hasFemale ? Number(paidFemale[i]).toFixed(2).replace('.', ',') + ' <span style="color:red"><b>(ж)</b></span>' : '- <span style="color:red"><b>(ж)</b></span>';
+                paidCell = `${f} / ${m}`;
+              }
+            } else if (Array.isArray(paid) && paid[i] !== undefined && paid[i] !== "") {
+              paidCell = Number(paid[i]).toFixed(2).replace('.', ',');
+            }
+          }
+
+          html += `<td>${paidCell}</td>`;
+        }
+
         html += "</tr>";
       });
     });
 
     html += "</table>";
 
-    // alert box за Софийски университет
     let alertHtml = "";
     if (university === "Софийски университет") {
       alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
         През 2023 и 2024 балообразуването e различно с максимален БАЛ 36
       </div>`;
     }
-    
 
     block.innerHTML = `<h2>${university}</h2>
       <button class="remove-btn" onclick="removeUniversity('${university}')">✖</button>` + html + alertHtml;
@@ -175,5 +173,4 @@ html += `<td>${paidCell}</td>`;
   window.resetFilters = function () {
     specialtySelect.value = "";
   };
-  
 });
