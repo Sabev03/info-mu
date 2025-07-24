@@ -148,6 +148,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     html += "</table>";
+    html += `
+  <div class="export-buttons" style="margin-top: 10px;">
+    <button onclick="printTable()">🖨️ Принт</button>
+    <button onclick="exportPDF()">📄 PDF</button>
+    <button onclick="exportExcel()">📊 Excel</button>
+  </div>
+`;
 
     let alertHtml = "";
     if (university === "Софийски университет") {
@@ -174,3 +181,44 @@ document.addEventListener("DOMContentLoaded", function () {
     specialtySelect.value = "";
   };
 });
+function printTable() {
+  const content = document.body.innerHTML;
+  const printWindow = window.open('', '', 'width=900,height=650');
+  printWindow.document.write(`<html><head><title>Принтиране</title></head><body>${content}</body></html>`);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+function exportPDF() {
+  const blocks = document.querySelectorAll('.university-block');
+  const element = document.createElement("div");
+
+  blocks.forEach(block => {
+    const clone = block.cloneNode(true);
+    element.appendChild(clone);
+  });
+
+  html2pdf().set({
+    margin: 0.5,
+    filename: '${university}.pdf',
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  }).from(element).save();
+}
+
+function exportExcel() {
+  const tables = document.querySelectorAll(".university-block table");
+  if (tables.length === 0) return;
+
+  let fullHTML = "";
+  tables.forEach(table => {
+    fullHTML += table.outerHTML + "<br><br>";
+  });
+
+  const filename = 'университети.xls';
+  const downloadLink = document.createElement("a");
+
+  downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(fullHTML);
+  downloadLink.download = filename;
+  downloadLink.click();
+}
