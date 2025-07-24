@@ -191,6 +191,14 @@ function exportPDF(blockId) {
 
   const uniName = fileSafe(getUniversityName(block));
 
+  // Клониране на блока без бутона за изтриване
+  const clonedBlock = block.cloneNode(true);
+  const removeBtn = clonedBlock.querySelector('.remove-btn');
+  if (removeBtn) removeBtn.remove();
+
+  // Премахване на емоджита и празен телефон
+  clonedBlock.innerHTML = clonedBlock.innerHTML.replace('😢', '').replace(/Телефон:<[^>]+><\/p>/g, '');
+
   // Създаваме невидим контейнер
   const hiddenContainer = document.createElement('div');
   hiddenContainer.style.position = 'fixed';
@@ -207,19 +215,38 @@ function exportPDF(blockId) {
   header.innerHTML = `
     <div style="display:flex; align-items:center; margin-bottom:20px;">
       <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
-      <span style="font-size:18px; font-weight:bold;">иво е пич.БГ</span>
+      <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
     </div>
   `;
 
+  // Слагаме стилове за таблицата да се мащабира
+  const style = document.createElement('style');
+  style.textContent = `
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+      font-size: 10px;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+  `;
+  wrapper.appendChild(style);
   wrapper.appendChild(header);
-  wrapper.appendChild(block.cloneNode(true));
+  wrapper.appendChild(clonedBlock);
   hiddenContainer.appendChild(wrapper);
   document.body.appendChild(hiddenContainer);
 
   html2pdf().set({
     margin: [0.5, 0.5, 0.5, 0.5],
     filename: `${uniName}.pdf`,
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 1, useCORS: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
   })
   .from(wrapper)
