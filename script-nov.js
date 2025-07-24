@@ -150,9 +150,9 @@ document.addEventListener("DOMContentLoaded", function () {
     html += "</table>";
     html += `
   <div class="export-buttons" style="margin-top: 10px;">
-    <button onclick="printTable()">🖨️ Принт</button>
-    <button onclick="exportPDF()">📄 PDF</button>
-    <button onclick="exportExcel()">📊 Excel</button>
+    <button onclick="printTable('${block.id}')">🖨️ Принт</button>
+    <button onclick="exportPDF('${block.id}')">📄 PDF</button>
+    <button onclick="exportExcel('${block.id}')">📊 Excel</button>
   </div>
 `;
 
@@ -181,44 +181,51 @@ document.addEventListener("DOMContentLoaded", function () {
     specialtySelect.value = "";
   };
 });
-function printTable() {
-  const content = document.body.innerHTML;
-  const printWindow = window.open('', '', 'width=900,height=650');
-  printWindow.document.write(`<html><head><title>Принтиране</title></head><body>${content}</body></html>`);
+function printTable(blockId) {
+  const block = document.getElementById(blockId);
+  const printWindow = window.open('', '', 'width=1000,height=700');
+  const logo = '<div style="margin-bottom:20px;"><img src="logo.png" height="40" style="vertical-align:middle;"> <span style="font-size:18px;font-weight:bold;margin-left:10px;">Университети.БГ</span></div>';
+  printWindow.document.write(`<html><head><title>Принт</title></head><body>${logo}${block.innerHTML}</body></html>`);
   printWindow.document.close();
   printWindow.print();
 }
 
-function exportPDF() {
-  const blocks = document.querySelectorAll('.university-block');
-  const element = document.createElement("div");
+function exportPDF(blockId) {
+  const block = document.getElementById(blockId);
+  const element = block.cloneNode(true);
 
-  blocks.forEach(block => {
-    const clone = block.cloneNode(true);
-    element.appendChild(clone);
-  });
+  // Добавяне на лого и заглавие най-горе
+  const wrapper = document.createElement("div");
+  wrapper.style.padding = "10px";
+
+  const header = document.createElement("div");
+  header.innerHTML = `
+    <div style="display:flex; align-items:center; margin-bottom:20px;">
+      <img src="logo.png" style="height:40px; margin-right:15px;">
+      <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
+    </div>
+  `;
+  wrapper.appendChild(header);
+  wrapper.appendChild(element);
 
   html2pdf().set({
-    margin: 0.5,
-    filename: '${university}.pdf',
+    margin: [0.3, 0.3, 0.3, 0.3],
+    filename: 'университет.pdf',
     html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  }).from(element).save();
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+  }).from(wrapper).save();
 }
 
-function exportExcel() {
-  const tables = document.querySelectorAll(".university-block table");
-  if (tables.length === 0) return;
+function exportExcel(blockId) {
+  const table = document.querySelector(`#${blockId} table`);
+  if (!table) return;
 
-  let fullHTML = "";
-  tables.forEach(table => {
-    fullHTML += table.outerHTML + "<br><br>";
-  });
+  const html = table.outerHTML;
+  const filename = 'университет.xls';
 
-  const filename = 'университети.xls';
   const downloadLink = document.createElement("a");
-
-  downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(fullHTML);
+  downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
   downloadLink.download = filename;
   downloadLink.click();
 }
+
