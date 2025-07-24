@@ -185,66 +185,47 @@ html += `
   };
 });
 
-function fileSafe(name) {
-  return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '');
-}
-
-function getUniversityName(block) {
-  return block.querySelector('h2')?.innerText || 'universitet';
-}
-
-function printTable(blockId) {
-  const block = document.getElementById(blockId);
-  if (!block) return;
-
-  const logo = '<div style="margin-bottom:20px;"><img src="sabev-orange.png" height="40" style="vertical-align:middle;"> <span style="font-size:18px;font-weight:bold;margin-left:10px;">Университети.БГ</span></div>';
-
-  const win = window.open('', '', 'width=1200,height=800');
-  win.document.write(`<html><head><title>Принт</title></head><body>${logo}${block.innerHTML}</body></html>`);
-  win.document.close();
-  win.focus();
-  win.print();
-  // win.close(); // по избор
-}
-
 function exportPDF(blockId) {
   const block = document.getElementById(blockId);
   if (!block) return;
 
   const uniName = fileSafe(getUniversityName(block));
 
-  // Клонираме и го закачаме временно към DOM, за да се приложи CSS
+  // Създаваме невидим контейнер
+  const hiddenContainer = document.createElement('div');
+  hiddenContainer.style.position = 'fixed';
+  hiddenContainer.style.left = '-9999px';
+  hiddenContainer.style.top = '0';
+  hiddenContainer.style.width = '297mm'; // A4 landscape
+  hiddenContainer.style.background = '#fff';
+
   const wrapper = document.createElement('div');
-  wrapper.style.padding = '10px';
-  wrapper.style.background = '#fff';
-  wrapper.style.width = '100%';
+  wrapper.style.padding = '20px';
+  wrapper.style.fontFamily = 'Arial, sans-serif';
 
   const header = document.createElement('div');
   header.innerHTML = `
     <div style="display:flex; align-items:center; margin-bottom:20px;">
-        <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
-      <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
+      <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
+      <span style="font-size:18px; font-weight:bold;">иво е пич.БГ</span>
     </div>
   `;
+
   wrapper.appendChild(header);
   wrapper.appendChild(block.cloneNode(true));
-
-  document.body.appendChild(wrapper); // важен трик
+  hiddenContainer.appendChild(wrapper);
+  document.body.appendChild(hiddenContainer);
 
   html2pdf().set({
-    margin: [0.3, 0.3, 0.3, 0.3],
-    filename: `${university}.pdf`,
+    margin: [0.5, 0.5, 0.5, 0.5],
+    filename: `${uniName}.pdf`,
     html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
   })
   .from(wrapper)
   .save()
-  .then(() => {
-    document.body.removeChild(wrapper);
-  })
-  .catch(() => {
-    document.body.removeChild(wrapper);
-  });
+  .then(() => document.body.removeChild(hiddenContainer))
+  .catch(() => document.body.removeChild(hiddenContainer));
 }
 
 function exportExcel(blockId) {
@@ -255,16 +236,58 @@ function exportExcel(blockId) {
   if (!table) return;
 
   const uniName = fileSafe(getUniversityName(block));
-  const html = '\ufeff' + table.outerHTML; // BOM за кирилица
+  const html = '\ufeff' + table.outerHTML;
 
   const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${university}.xls`;
+  a.download = `${uniName}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function printBlock(blockId) {
+  const block = document.getElementById(blockId);
+  if (!block) return;
+
+  const uniName = getUniversityName(block);
+
+  const printWindow = window.open('', '', 'width=1200,height=800');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>${uniName}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+          h2 { margin-bottom: 10px; }
+        </style>
+      </head>
+      <body>
+        <div style="display:flex; align-items:center; margin-bottom:20px;">
+          <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
+          <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
+        </div>
+        ${block.innerHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+}
+
+function getUniversityName(block) {
+  const h2 = block.querySelector('h2');
+  return h2 ? h2.innerText.trim() : 'Университет';
+}
+
+function fileSafe(name) {
+  return name.replace(/[^a-zA-Z0-9а-яА-Я _-]/g, '').replace(/\s+/g, '_');
 }
