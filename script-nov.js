@@ -148,11 +148,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     html += "</table>";
-    html += `
-  <div class="export-buttons" style="margin-top: 10px;">
-    <button onclick="printTable('${block.id}')">🖨️ Принт</button>
-    <button onclick="exportPDF('${block.id}')">📄 PDF</button>
-    <button onclick="exportExcel('${block.id}')">📊 Excel</button>
+    
+    const blockId = block.id; // ВЗЕМИ ID-то на текущия блок
+
+html += `
+  <div class="export-buttons" style="margin-top:10px;">
+    <button onclick="printTable('${blockId}')">🖨️ Принт</button>
+    <button onclick="exportPDF('${blockId}')">📄 PDF</button>
+    <button onclick="exportExcel('${blockId}')">📊 Excel</button>
   </div>
 `;
 
@@ -181,51 +184,87 @@ document.addEventListener("DOMContentLoaded", function () {
     specialtySelect.value = "";
   };
 });
+
+function fileSafe(name) {
+  return name.replace(/\s+/g, '_').replace(/[^\w\-]/g, '');
+}
+
+function getUniversityName(block) {
+  return block.querySelector('h2')?.innerText || 'universitet';
+}
+
 function printTable(blockId) {
   const block = document.getElementById(blockId);
-  const printWindow = window.open('', '', 'width=1000,height=700');
-  const logo = '<div style="margin-bottom:20px;"><img src="logo.png" height="40" style="vertical-align:middle;"> <span style="font-size:18px;font-weight:bold;margin-left:10px;">Университети.БГ</span></div>';
-  printWindow.document.write(`<html><head><title>Принт</title></head><body>${logo}${block.innerHTML}</body></html>`);
-  printWindow.document.close();
-  printWindow.print();
+  if (!block) return;
+
+  const logo = '<div style="margin-bottom:20px;"><img src="sabev-orange.png" height="40" style="vertical-align:middle;"> <span style="font-size:18px;font-weight:bold;margin-left:10px;">Университети.БГ</span></div>';
+
+  const win = window.open('', '', 'width=1200,height=800');
+  win.document.write(`<html><head><title>Принт</title></head><body>${logo}${block.innerHTML}</body></html>`);
+  win.document.close();
+  win.focus();
+  win.print();
+  // win.close(); // по избор
 }
 
 function exportPDF(blockId) {
   const block = document.getElementById(blockId);
-  const element = block.cloneNode(true);
+  if (!block) return;
 
-  // Добавяне на лого и заглавие най-горе
-  const wrapper = document.createElement("div");
-  wrapper.style.padding = "10px";
+  const uniName = fileSafe(getUniversityName(block));
 
-  const header = document.createElement("div");
+  // Клонираме и го закачаме временно към DOM, за да се приложи CSS
+  const wrapper = document.createElement('div');
+  wrapper.style.padding = '10px';
+  wrapper.style.background = '#fff';
+  wrapper.style.width = '100%';
+
+  const header = document.createElement('div');
   header.innerHTML = `
     <div style="display:flex; align-items:center; margin-bottom:20px;">
-      <img src="logo.png" style="height:40px; margin-right:15px;">
+        <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
       <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
     </div>
   `;
   wrapper.appendChild(header);
-  wrapper.appendChild(element);
+  wrapper.appendChild(block.cloneNode(true));
+
+  document.body.appendChild(wrapper); // важен трик
 
   html2pdf().set({
     margin: [0.3, 0.3, 0.3, 0.3],
-    filename: 'университет.pdf',
-    html2canvas: { scale: 2 },
+    filename: `${university}.pdf`,
+    html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-  }).from(wrapper).save();
+  })
+  .from(wrapper)
+  .save()
+  .then(() => {
+    document.body.removeChild(wrapper);
+  })
+  .catch(() => {
+    document.body.removeChild(wrapper);
+  });
 }
 
 function exportExcel(blockId) {
-  const table = document.querySelector(`#${blockId} table`);
+  const block = document.getElementById(blockId);
+  if (!block) return;
+
+  const table = block.querySelector('table');
   if (!table) return;
 
-  const html = table.outerHTML;
-  const filename = 'университет.xls';
+  const uniName = fileSafe(getUniversityName(block));
+  const html = '\ufeff' + table.outerHTML; // BOM за кирилица
 
-  const downloadLink = document.createElement("a");
-  downloadLink.href = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
-  downloadLink.download = filename;
-  downloadLink.click();
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${university}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
-
