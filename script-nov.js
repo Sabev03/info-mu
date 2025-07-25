@@ -148,23 +148,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     html += "</table>";
-    
-    const blockId = block.id; // ВЗЕМИ ID-то на текущия блок
 
-html += `
-  <div class="export-buttons" style="margin-top:10px;">
-    <button onclick="printTable('${blockId}')">🖨️ Принт</button>
-    <button onclick="exportPDF('${blockId}')">📄 PDF</button>
-    <button onclick="exportExcel('${blockId}')">📊 Excel</button>
-  </div>
-`;
-
+//АЛЪРТ ЗА ВСЕКИ УНИВЕРСИТЕТ
     let alertHtml = "";
     if (university === "Софийски университет") {
       alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
         През 2023 и 2024 балообразуването e различно с максимален БАЛ 36
       </div>`;
-    }
+      } else if (university === "Бургаски държавен университет Проф д-р. Асен Златанов") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    След подадено заявление за достъп до обществена информация от БДУ отказаха да ми предоставят справка за минималните балове. Тази информация била статистика, а те нямали ресусрса да я изготвят...
+  </div>`;
+  } else if (university === "Медицински университет-София") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    В момента тече въвеждане на информацията от стари години.
+  </div>`;
+  } else if (university === "Медицински университет-Варна") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    В момента тече въвеждане на информацията от стари години.
+  </div>`;
+  } else if (university === "Медицински университет-Пловдив") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    В момента тече въвеждане на информацията от стари години.
+  </div>`;
+  } else if (university === "Медицински университет-Плевен") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    Ще бъде подадено заявление по ЗДОИ за справка за минимални балове от предходни години.
+  </div>`;
+  } else if (university === "Тракийски университет-Стара Загора") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    Подадено е заявление по ЗДОИ за справка за минимални балове от предходни години. В очакване съм на отговор. Статус: още не е входирано
+  </div>`;
+}
+    
+    
 
     block.innerHTML = `<h2>${university}</h2>
       <button class="remove-btn" onclick="removeUniversity('${university}')">✖</button>` + html + alertHtml;
