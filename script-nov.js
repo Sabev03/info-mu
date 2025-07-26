@@ -289,7 +289,7 @@ const formattedDate = now.toLocaleString('bg-BG', {
         ${content.innerHTML}
 
         <div class="generated-note">
-          Справката е генерирана през <a href="${siteUrl}" target="_blank">${siteUrl}</a> на  ${formattedDate} ч.
+          Справката е генерирана през <a href="${siteUrl}/info-mu" target="_blank">${siteUrl}/info-mu</a> на ${formattedDate} ч.
         </div>
 
         <script>
@@ -333,7 +333,7 @@ const formattedDate = now.toLocaleString('bg-BG', {
   note.style.fontStyle = "italic";
   note.style.fontSize = "0.9em";
   note.style.color = "#666";
-  note.innerHTML = `Справката е генерирана през <a href="${window.location.origin}" target="_blank">${window.location.origin}</a> на ${formattedDate} ч.`;
+  note.innerHTML = `Справката е генерирана през <a href="${window.location.origin}/info-mu" target="_blank">${window.location.origin}/info-mu</a> на ${formattedDate} ч.`;
   clone.appendChild(note);
 
   // Създай стилове
@@ -456,7 +456,7 @@ window.exportExcel = function (blockId) {
       <h2 class="zaglavie">${universityName}</h2>
       ${clonedTable.outerHTML}<br>
       <div class="footer-note">
-        Справката е генерирана през <a href="${siteUrl}" target="_blank">${siteUrl}</a> на ${formattedDate} ч.
+        Справката е генерирана през <a href="${siteUrl}/info-mu" target="_blank">${siteUrl}/info-mu</a> на ${formattedDate} ч.
       </div>
 
       <script>
