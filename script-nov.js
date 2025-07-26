@@ -471,7 +471,7 @@ window.exportExcel = function (blockId) {
 
         setTimeout(() => {
           window.close();
-        }, 1500);
+        }, 10000);
       </script>
     </body>
     </html>
