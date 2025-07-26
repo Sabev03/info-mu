@@ -343,7 +343,7 @@ window.exportPDFTable = async function (blockId) {
   doc.addFont("LiberationSans-Regular.ttf", "LiberationSans", "normal");
   doc.setFont("LiberationSans", "normal");
   doc.setFontSize(16);
-  doc.text(universityName, 14, 15);
+  doc.text(`${universityName} / Справка за минимални балове`, 14, 15);
 
   doc.setFontSize(10);
 
