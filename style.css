@@ -28,14 +28,14 @@
       border-left: 5px solid #ffcc00;
       padding: 15px;
       margin: 20px auto;
-      max-width: 1070px;
+      max-width: 1380px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       font-weight: bold;
       color: #444;
     }
 
     .content {
-      max-width: 1070px;
+      max-width: 1380px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -49,6 +49,7 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 20px;
+      text-align:center
     }
 
     .filters select,
@@ -86,7 +87,7 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       padding: 10px;
       position: relative;
-      width: auto;
+      min-width: 1380px;
     }
 
     table {

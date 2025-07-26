@@ -158,31 +158,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //АЛЪРТ ЗА ВСЕКИ УНИВЕРСИТЕТ
     let alertHtml = "";
+    //СОФИЙСКИ
     if (university === "Софийски университет") {
       alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #665500; font-weight: bold;">
         През 2023 и 2024 балообразуването e различно с максимален БАЛ 36
-      </div>`;
-      } else if (university === "Бургаски държавен университет Проф д-р. Асен Златанов") {
+      </div> <i>Данните за 2022-2024 г. са предоствени от СУ "Св. Климент Охридски" по заявление за достъп до обществена информация №90-00-10/17.07.2025 г. с Решение №РД-19-447/23.07.2025 Г.</i>`;
+    //БУРГАСКИ  
+    } else if (university === "Бургаски държавен университет Проф д-р. Асен Златанов") {
   alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
     След подадено заявление за достъп до обществена информация от БДУ отказаха да ми предоставят справка за минималните балове. Тази информация била статистика, а те нямали ресусрса да я изготвят...
   </div>`;
-  } else if (university === "Медицински университет-София") {
+    //МУ-СОФИЯ
+  //} else if (university === "Медицински университет-София") {
+  //alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    
+  //</div>`;
+  //МУ-ВАРНА
+} else if (university === "Медицински университет-Варна") {
+  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
+    За специалността "Военен лекар" балообразуването е друго!
+  </div>`;
+ //МУ-ПЛОВДИВ 
+} else if (university === "Медицински университет-Пловдив") {
   alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
     В момента тече въвеждане на информацията от стари години.
   </div>`;
-  } else if (university === "Медицински университет-Варна") {
-  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
-    В момента тече въвеждане на информацията от стари години.
-  </div>`;
-  } else if (university === "Медицински университет-Пловдив") {
-  alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
-    В момента тече въвеждане на информацията от стари години.
-  </div>`;
-  } else if (university === "Медицински университет-Плевен") {
+  //МУ ПЛЕВЕН  
+} else if (university === "Медицински университет-Плевен") {
   alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
     Ще бъде подадено заявление по ЗДОИ за справка за минимални балове от предходни години.
   </div>`;
-  } else if (university === "Тракийски университет-Стара Загора") {
+  //ТРАКИЙСКИ УНИВЕРСИТЕТ  
+} else if (university === "Тракийски университет-Стара Загора") {
   alertHtml = `<div class="alert-box" style="margin-top: 10px; padding: 10px; border: 1px solid #0077cc; background-color: #e6f3ff; color: #003366; font-weight: bold;">
     Подадено е заявление по ЗДОИ за справка за минимални балове от предходни години. В очакване съм на отговор. Статус: още не е входирано
   </div>`;
@@ -311,82 +318,63 @@ const formattedDate = now.toLocaleString('bg-BG', {
 };
 
 
-window.exportPDFTable = function (blockId) {
-  const element = document.getElementById(blockId);
-  if (!element) return alert("Таблицата не е намерена.");
+window.exportPDFTable = async function (blockId) {
+  const block = document.getElementById(blockId);
+  if (!block) return alert("Таблицата не е намерена.");
 
-  // Клонирай съдържанието
-  const clone = element.cloneNode(true);
+  const table = block.querySelector("table");
+  if (!table) return alert("Таблица не е намерена.");
 
-  // Премахване на бутони
-  clone.querySelectorAll("button").forEach(btn => btn.remove());
+  const universityName = block.querySelector("h2")?.innerText || "Университет";
 
-  // Добавяне на бележка най-отдолу
   const now = new Date();
-const formattedDate = now.toLocaleString('bg-BG', {
-  dateStyle: 'short',
-  timeStyle: 'short'
-});
-  const note = document.createElement("div");
-  note.style.marginTop = "30px";
-  note.style.textAlign = "center";
-  note.style.fontStyle = "italic";
-  note.style.fontSize = "0.9em";
-  note.style.color = "#666";
-  note.innerHTML = `Справката е генерирана през <a href="${window.location.origin}/info-mu" target="_blank">${window.location.origin}/info-mu</a> на ${formattedDate} ч.`;
-  clone.appendChild(note);
+  const formattedDate = now.toLocaleString('bg-BG', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
 
-  // Създай стилове
-  const style = `
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th, td {
-        border: 1px solid #ccc;
-        padding: 6px;
-        text-align: center;
-      }
-      th {
-        background-color: #2980b9;
-        color: white;
-      }
-      tr:nth-child(even) {
-        background-color: #f2f2f2;
-      }
-      .alert-box {
-        margin: 10px 0;
-        padding: 10px;
-        border: 1px solid #ffcc00;
-        background-color: #fff8e1;
-        color: #665500;
-        font-weight: bold;
-      }
-    </style>
-  `;
+  const siteUrl = window.location.origin;
 
-  const container = document.createElement("div");
-  container.innerHTML = style;
-  container.appendChild(clone);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape" });
 
-  const opt = {
-    margin:       [10, 10, 10, 10],
-    filename:     `${blockId}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  };
+  // ✅ Зареждаме кирилския шрифт
+  doc.addFileToVFS("LiberationSans-Regular.ttf", LiberationSans);
+  doc.addFont("LiberationSans-Regular.ttf", "LiberationSans", "normal");
+  doc.setFont("LiberationSans", "normal");
+  doc.setFontSize(16);
+  doc.text(universityName, 14, 15);
 
-  html2pdf().set(opt).from(container).outputPdf('blob').then(function (blob) {
-  const blobUrl = URL.createObjectURL(blob);
-  window.open(blobUrl, '_blank');
-});
+  doc.setFontSize(10);
+
+  doc.autoTable({
+    html: table,
+    startY: 20,
+    styles: {
+      font: "LiberationSans",
+      fontSize: 9,
+      cellPadding: 2,
+      overflow: 'linebreak',
+    },
+    headStyles: {
+      fillColor: [41, 128, 185],
+      textColor: 255
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245]
+    },
+    theme: 'grid'
+  });
+
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text(`Справката е генерирана през ${siteUrl}/info-mu на ${formattedDate} ч.`, 14, doc.internal.pageSize.height - 10);
+
+  doc.save(`${universityName.replace(/\s+/g, "_")}_${formattedDate.replace(/[^\d]/g, "-")}.pdf`);
 };
+
+
+
 
 
 window.exportExcel = function (blockId) {
