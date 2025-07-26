@@ -148,6 +148,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     html += "</table>";
+   html += `
+  <div style="margin-top: 15px;">
+    <button onclick="printBlock('block-${university}')">🖨️ Принтирай</button>
+    <button onclick="exportPDFTable('block-${university}')">📄 PDF</button>
+    <button type="button" onclick="exportExcel('block-${university}')">📊 Excel</button>
+
+  </div>`;
 
 //АЛЪРТ ЗА ВСЕКИ УНИВЕРСИТЕТ
     let alertHtml = "";
@@ -202,136 +209,283 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 });
 
-function exportPDF(blockId) {
-  const block = document.getElementById(blockId);
-  if (!block) return;
+//ЕКСПОРТ
+//window.printBlock = function (blockId) {
+  //const printContents = document.getElementById(blockId).innerHTML;
+  //const originalContents = document.body.innerHTML;
 
-  const uniName = fileSafe(getUniversityName(block));
+  //document.body.innerHTML = printContents;
+  //window.print();
+ // document.body.innerHTML = originalContents;
+  //location.reload(); // да възстановим JS-а след принт
+//}; 
+window.printBlock = function (blockId) {
+  const content = document.getElementById(blockId);
+  if (!content) return alert("Няма какво да се принтира.");
 
-  // Клониране на блока без бутона за изтриване
-  const clonedBlock = block.cloneNode(true);
-  const removeBtn = clonedBlock.querySelector('.remove-btn');
-  if (removeBtn) removeBtn.remove();
+  const win = window.open("", "_blank");
 
-  // Премахване на емоджита и празен телефон
-  clonedBlock.innerHTML = clonedBlock.innerHTML.replace('😢', '').replace(/Телефон:<[^>]+><\/p>/g, '');
-
-  // Създаваме невидим контейнер
-  const hiddenContainer = document.createElement('div');
-  hiddenContainer.style.position = 'fixed';
-  hiddenContainer.style.left = '-9999px';
-  hiddenContainer.style.top = '0';
-  hiddenContainer.style.width = '297mm'; // A4 landscape
-  hiddenContainer.style.background = '#fff';
-
-  const wrapper = document.createElement('div');
-  wrapper.style.padding = '20px';
-  wrapper.style.fontFamily = 'Arial, sans-serif';
-
-  const header = document.createElement('div');
-  header.innerHTML = `
-    <div style="display:flex; align-items:center; margin-bottom:20px;">
-      <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
-      <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
-    </div>
-  `;
-
-  // Слагаме стилове за таблицата да се мащабира
-  const style = document.createElement('style');
-  style.textContent = `
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-      font-size: 10px;
-    }
-    h2 {
-      margin-bottom: 10px;
-    }
-  `;
-  wrapper.appendChild(style);
-  wrapper.appendChild(header);
-  wrapper.appendChild(clonedBlock);
-  hiddenContainer.appendChild(wrapper);
-  document.body.appendChild(hiddenContainer);
-
-  html2pdf().set({
-    margin: [0.5, 0.5, 0.5, 0.5],
-    filename: `${uniName}.pdf`,
-    html2canvas: { scale: 1, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-  })
-  .from(wrapper)
-  .save()
-  .then(() => document.body.removeChild(hiddenContainer))
-  .catch(() => document.body.removeChild(hiddenContainer));
-}
-
-function exportExcel(blockId) {
-  const block = document.getElementById(blockId);
-  if (!block) return;
-
-  const table = block.querySelector('table');
-  if (!table) return;
-
-  const uniName = fileSafe(getUniversityName(block));
-  const html = '\ufeff' + table.outerHTML;
-
-  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${uniName}.xls`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function printBlock(blockId) {
-  const block = document.getElementById(blockId);
-  if (!block) return;
-
-  const uniName = getUniversityName(block);
-
-  const printWindow = window.open('', '', 'width=1200,height=800');
-  printWindow.document.write(`
+  const siteUrl = window.location.origin;
+const now = new Date();
+const formattedDate = now.toLocaleString('bg-BG', {
+  dateStyle: 'short',
+  timeStyle: 'short'
+});
+  win.document.write(`
     <html>
       <head>
-        <title>${uniName}</title>
+        <title>Принтиране</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-          h2 { margin-bottom: 10px; }
+          @media print {
+            @page {
+              size: landscape;
+              margin: 0; /* Премахва полетата колкото браузърът позволява */
+            }
+            body {
+              margin: 0;
+            }
+          }
+
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: white;
+          }
+
+          table {
+            border-collapse: collapse;
+            width: 100%;
+          }
+
+          th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: center;
+          }
+
+          th {
+            background-color: #2980b9;
+            color: white;
+          }
+
+          tr:nth-child(even) {
+            background-color: #f2f2f2;
+          }
+
+          .remove-btn, button {
+            display: none;
+          }
+
+          .generated-note {
+            margin-top: 30px;
+            text-align: center;
+            font-style: italic;
+            font-size: 0.9em;
+            color: #666;
+          }
         </style>
       </head>
       <body>
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
-          <img src="sabev-orange.png" style="height:40px; margin-right:15px;">
-          <span style="font-size:18px; font-weight:bold;">Университети.БГ</span>
+        ${content.innerHTML}
+
+        <div class="generated-note">
+          Справката е генерирана през <a href="${siteUrl}" target="_blank">${siteUrl}</a> на  ${formattedDate} ч.
         </div>
-        ${block.innerHTML}
+
+        <script>
+          window.onload = function() {
+            setTimeout(() => {
+              window.print();
+            }, 300);
+
+            window.onafterprint = function () {
+              window.close();
+            };
+          };
+        </script>
       </body>
     </html>
   `);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-  printWindow.close();
-}
 
-function getUniversityName(block) {
-  const h2 = block.querySelector('h2');
-  return h2 ? h2.innerText.trim() : 'Университет';
-}
+  win.document.close();
+};
 
-function fileSafe(name) {
-  return name.replace(/[^a-zA-Z0-9а-яА-Я _-]/g, '').replace(/\s+/g, '_');
-}
+
+window.exportPDFTable = function (blockId) {
+  const element = document.getElementById(blockId);
+  if (!element) return alert("Таблицата не е намерена.");
+
+  // Клонирай съдържанието
+  const clone = element.cloneNode(true);
+
+  // Премахване на бутони
+  clone.querySelectorAll("button").forEach(btn => btn.remove());
+
+  // Добавяне на бележка най-отдолу
+  const now = new Date();
+const formattedDate = now.toLocaleString('bg-BG', {
+  dateStyle: 'short',
+  timeStyle: 'short'
+});
+  const note = document.createElement("div");
+  note.style.marginTop = "30px";
+  note.style.textAlign = "center";
+  note.style.fontStyle = "italic";
+  note.style.fontSize = "0.9em";
+  note.style.color = "#666";
+  note.innerHTML = `Справката е генерирана през <a href="${window.location.origin}" target="_blank">${window.location.origin}</a> на ${formattedDate} ч.`;
+  clone.appendChild(note);
+
+  // Създай стилове
+  const style = `
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        border: 1px solid #ccc;
+        padding: 6px;
+        text-align: center;
+      }
+      th {
+        background-color: #2980b9;
+        color: white;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      .alert-box {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ffcc00;
+        background-color: #fff8e1;
+        color: #665500;
+        font-weight: bold;
+      }
+    </style>
+  `;
+
+  const container = document.createElement("div");
+  container.innerHTML = style;
+  container.appendChild(clone);
+
+  const opt = {
+    margin:       [10, 10, 10, 10],
+    filename:     `${blockId}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+  };
+
+  html2pdf().set(opt).from(container).outputPdf('blob').then(function (blob) {
+  const blobUrl = URL.createObjectURL(blob);
+  window.open(blobUrl, '_blank');
+});
+};
+
+
+window.exportExcel = function (blockId) {
+  const block = document.getElementById(blockId);
+  if (!block) return alert("Блокът не е намерен.");
+
+  const table = block.querySelector("table");
+  if (!table) return alert("Таблицата не е намерена.");
+
+  const universityName = block.querySelector("h2")?.innerText || "Университет";
+
+  const now = new Date();
+  const formattedDate = now.toLocaleString('bg-BG', {
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+
+  const clonedTable = table.cloneNode(true);
+  clonedTable.querySelectorAll("button").forEach(btn => btn.remove());
+
+  const siteUrl = window.location.origin;
+
+  // 🆕 Генерирай безопасно име за файл още тук
+ const safeFileName = `${universityName.replace(/\s+/g, "_")}_${formattedDate.replace(/[^\d]/g, "-")}.xls`;
+
+  const htmlContent = `
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${universityName}</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 13px;
+          padding: 20px;
+        }
+        h2 {
+          margin-bottom: 10px;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        th, td {
+          border: none;
+          padding: 6px;
+          text-align: center;
+        }
+        span[color="red"] {
+          color: red;
+          font-weight: bold;
+        }
+        span[color="blue"] {
+          color: blue;
+          font-weight: bold;
+        }
+        .footer-note {
+          margin-top: 30px;
+          text-align: center;
+          font-style: italic;
+          color: #555;
+        }
+        .zaglavie { text-align: center; }
+      </style>
+    </head>
+    <body>
+      <h2 class="zaglavie">${universityName}</h2>
+      ${clonedTable.outerHTML}<br>
+      <div class="footer-note">
+        Справката е генерирана през <a href="${siteUrl}" target="_blank">${siteUrl}</a> на ${formattedDate} ч.
+      </div>
+
+      <script>
+        const blob = new Blob([document.documentElement.outerHTML], { type: "application/vnd.ms-excel" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "${safeFileName}";  // 👈 директно вградено като текст
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+          window.close();
+        }, 1500);
+      </script>
+    </body>
+    </html>
+  `;
+
+  const win = window.open("", "_blank");
+  win.document.open();
+  win.document.write(htmlContent);
+  win.document.close();
+};
+
+
+
+
+
+
+
