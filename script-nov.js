@@ -338,7 +338,7 @@ window.exportPDFTable = async function (blockId) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "landscape" });
 
-  // ✅ Зареждаме кирилския шрифт
+  // Зареждаме кирилския шрифт
   doc.addFileToVFS("LiberationSans-Regular.ttf", LiberationSans);
   doc.addFont("LiberationSans-Regular.ttf", "LiberationSans", "normal");
   doc.setFont("LiberationSans", "normal");
@@ -350,16 +350,64 @@ window.exportPDFTable = async function (blockId) {
   doc.autoTable({
     html: table,
     startY: 20,
+    useCSS: true,
     styles: {
       font: "LiberationSans",
       fontSize: 9,
       cellPadding: 2,
       overflow: 'linebreak',
+      textColor: [0, 0, 0],
+      fillColor: false,
     },
-    headStyles: {
-      fillColor: [41, 128, 185],
-      textColor: 255
-    },
+    didParseCell: function (data) {
+  const cell = data.cell;
+  const node = data.cell.raw;
+  if (!node) return;
+
+  const html = node.innerHTML;
+
+  // Превръщане на HTML съдържанието в plain текст с цветови маркери
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  const richParts = [];
+  tempDiv.childNodes.forEach(child => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      richParts.push({
+        text: child.textContent,
+        styles: { textColor: [0, 0, 0] } // черен текст
+      });
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const color = window.getComputedStyle(child).color;
+      let rgb = [0, 0, 0]; // по подразбиране
+      if (color) {
+        const matches = color.match(/\d+/g);
+        if (matches) {
+          rgb = matches.map(Number);
+        }
+      }
+
+      richParts.push({
+        text: child.textContent,
+        styles: { textColor: rgb }
+      });
+    }
+  });
+
+  if (richParts.length > 0) {
+    cell.richText = richParts;
+    cell.text = richParts.map(p => p.text).join(""); // fallback
+  }
+
+  // Поддръжка на фонов цвят
+  const bg = window.getComputedStyle(node).backgroundColor;
+  if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+    const rgb = bg.match(/\d+/g);
+    if (rgb) {
+      cell.styles.fillColor = [parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2])];
+    }
+  }
+},
     alternateRowStyles: {
       fillColor: [245, 245, 245]
     },
@@ -372,8 +420,6 @@ window.exportPDFTable = async function (blockId) {
 
   doc.save(`${universityName.replace(/\s+/g, "_")}_${formattedDate.replace(/[^\d]/g, "-")}.pdf`);
 };
-
-
 
 
 
